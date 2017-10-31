@@ -1,0 +1,22 @@
+* Commandes
+
+User: GET key
+Server:
+  - VAL foo bar baz
+  - UND
+  - ERR error message
+
+User: SET key foo bar baz
+Server:
+  - DON
+  - ERR error message
+
+User: DEL[key]
+Server:
+  - DON
+  - ERR error message
+
+User: BYE
+Server: BYE
+
+
