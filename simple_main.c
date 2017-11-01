@@ -39,7 +39,7 @@ int main()
 	printf("size of store : %i\n", storeSize(store));
 	printf("\n");
 
-	char* com = "GET bahfdowhe iwef d ioef w";
+	char* com = "  GET bahfdowhe iwef d ioef w";
 	Command* command;
 	command = malloc(sizeof(Command));
 
