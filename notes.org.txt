@@ -11,12 +11,10 @@ Server:
   - DON
   - ERR error message
 
-User: DEL[key]
+User: DEL key
 Server:
   - DON
   - ERR error message
 
 User: BYE
 Server: BYE
-
-

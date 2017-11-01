@@ -1,6 +1,8 @@
 #include "store.h"
+#include "command_parser.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -35,4 +37,15 @@ int main()
 	closeStore(store);
 	printf("close store\n");
 	printf("size of store : %i\n", storeSize(store));
+	printf("\n");
+
+	char* com = "GET bahfdowhe iwef d ioef w";
+	Command* command;
+	command = malloc(sizeof(Command));
+
+	printf("%s\n", com);
+	printf("%d\n", parseCommand(com, command));
+	printf("%d\n", command->instruction);
+	printf("%s\n", command->key);
+	printf("%s\n", command->value);
 }

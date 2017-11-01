@@ -80,3 +80,8 @@ unsigned int storeSize( Store *store ) {
  //your code here
  return HASH_COUNT(store->hashmap);
 }
+
+char *runCommand( Store *store, char* command ) {
+//your code here
+  return NULL;
+}
