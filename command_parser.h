@@ -1,5 +1,8 @@
 typedef unsigned short Inst;
 
+#define MAX_KEY_LEN    127
+#define MAX_VALUE_LEN  4095
+
 #define GET ((Inst)1)
 #define SET ((Inst)2)
 #define DEL ((Inst)3)

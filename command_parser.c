@@ -26,7 +26,7 @@ int parseCommand( const char *command, Command *result ) {
 		case 1:
 			p = parseKey(p, result);
 			if (!p){
-				result->error = "GET : missing key";
+				if(!result->error) result->error = "GET : missing key";
 				return -1;
 			}
 			if(parseValue(p,result)){
@@ -37,19 +37,19 @@ int parseCommand( const char *command, Command *result ) {
 		case 2:
 			p = parseKey(p, result);
 			if (!p){
-				result->error = "SET : missing key";
+				if(!result->error) result->error = "SET : missing key";
 				return -1;
 			}
 			p = parseValue(p, result);
 			if (!p){
-				result->error = "SET : missing value";
+				if(!result->error) result->error = "SET : missing value";
 				return -1;
 			}
 			break;
 		case 3:
 			p = parseKey(p, result);
 			if (!p){
-				result->error = "DEL : missing key";
+				if(!result->error) result->error = "DEL : missing key";
 				return -1;
 			}
 			if(parseValue(p,result)){
@@ -110,7 +110,10 @@ static char *parseKey(const char *command, Command *result){
 	while (*(p+len) != ' ' && *(p+len) != '\0') {
 		len++;
 	}
-
+	if(len > MAX_KEY_LEN){
+		result->error = "KEY too big, max 127 characters";
+		return NULL;
+	}
 	result->key = malloc(len+1);
 	strncpy(result->key, p, len);
 	p += len;
@@ -121,6 +124,10 @@ static char *parseValue(const char *command, Command *result){
 	char *p = command;
 	p = removeBeginingSpaces(p);
 	if (*p == '\0') {
+		return NULL;
+	}
+	if(strlen(p) > MAX_VALUE_LEN){
+		result->error = "VALUE too big, max 4095 characters";
 		return NULL;
 	}
 	result->value = malloc(strlen(p)+1);
