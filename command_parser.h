@@ -1,4 +1,4 @@
-typedef unsigned char Inst;
+typedef unsigned short Inst;
 
 #define GET ((Inst)1)
 #define SET ((Inst)2)
@@ -10,6 +10,7 @@ typedef struct Command_t{
 	Inst instruction;
 	char* key;
 	char* value;
+	char* error;
 } Command;
 
 

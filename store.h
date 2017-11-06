@@ -21,4 +21,6 @@ char *getValue( Store *store, char *key );
 
 unsigned int storeSize( Store *store );
 
+char *runCommand( Store *store, char* command );
+
 #endif

@@ -1,5 +1,9 @@
 #include "uthash.h"
 #include "store.h"
+#include "command_parser.h"
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 struct Record_t {
@@ -63,7 +67,7 @@ void removeValue( Store *store, char *key ) {
 	Record *rec = NULL;
 
 	HASH_FIND_STR(store->hashmap, key, rec);
-	if (rec) printf("remove key : %s from hashmap\n", key);
+	//if (rec) printf("remove entry %s from hashmap\n", key);
 	HASH_DEL(store->hashmap, rec);
 	deleteRecord(rec);
 }
@@ -82,6 +86,54 @@ unsigned int storeSize( Store *store ) {
 }
 
 char *runCommand( Store *store, char* command ) {
-//your code here
+	//your code here
+	Command* toRun = malloc(sizeof(Command));
+	char *ret, *value;
+	if (parseCommand(command, toRun) == -1){
+		ret = malloc(strlen("ERR invalide command\n") + strlen(toRun->error)+1);
+		strcpy(ret, "ERR invalide command\n");
+		strcat(ret, toRun->error);
+		return ret;
+	}
+
+	switch (toRun->instruction) {
+		case 1:
+			value = getValue(store, toRun->key);
+			if (!value){
+				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				strcpy(ret, "ERR ");
+				strcat(ret, toRun->key);
+				strcat(ret, " not found in store!");
+			}
+			else{
+				ret = malloc(strlen(value)+5);
+				strcpy(ret, "VAL ");
+				strcat(ret, value);
+			}
+			return ret;
+			break;
+		case 2:
+			setValue(store, toRun->key, toRun->value);
+			return "DON";
+			break;
+		case 3:
+		  value = getValue(store, toRun->key);
+			if (!value){
+				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				strcpy(ret, "ERR ");
+				strcat(ret, toRun->key);
+				strcat(ret, " not found in store!");
+				return ret;
+			}
+			removeValue(store, toRun->key);
+			return "DON";
+			break;
+		case 4:
+			return "BYE";
+			break;
+		default:
+			return "ERR Invalide commande !";
+			break;
+	}
   return NULL;
 }

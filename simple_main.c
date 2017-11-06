@@ -26,26 +26,42 @@ int main()
 	setValue(store, key4, value4);
 	setValue(store, key4, value3);
 
-	printf("value of key1 : %s\n", getValue(store, key1));
-	printf("value of key2 : %s\n", getValue(store, key2));
-	printf("value of key3 : %s\n", getValue(store, "key3"));
-	printf("value of key4 : %s\n", getValue(store, "key4"));
+	char *answer;
+	do {
+		char *command = malloc(MAX_KEY_LEN + MAX_VALUE_LEN + 7);
+		printf("> ");
+		command = fgets(command, MAX_KEY_LEN + MAX_VALUE_LEN + 7, stdin);
+		command[strlen(command)-1] = '\0';
+		answer = runCommand(store, command);
+		printf("%s\n", answer);
+	} while(strcmp(answer, "BYE") != 0);
 
-	printf("size of store : %i\n", storeSize(store));
-	removeValue(store, key4);
-	printf("size of store : %i\n", storeSize(store));
-	closeStore(store);
-	printf("close store\n");
-	printf("size of store : %i\n", storeSize(store));
-	printf("\n");
-
-	char* com = "  GET bahfdowhe iwef d ioef w";
-	Command* command;
-	command = malloc(sizeof(Command));
-
+	/*com = "SET sfwe wefwef";
 	printf("%s\n", com);
-	printf("%d\n", parseCommand(com, command));
-	printf("%d\n", command->instruction);
-	printf("%s\n", command->key);
-	printf("%s\n", command->value);
+	printf("%s\n", runCommand(store, com));
+
+	com = "GET sfwe";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+
+	com = "GET sfwee";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+
+	com = "GET key4";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+
+	com = "DEL sfwe";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+
+	com = "DEL sfddwe";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+
+	com = "BYE";
+	printf("%s\n", com);
+	printf("%s\n", runCommand(store, com));
+	*/
 }

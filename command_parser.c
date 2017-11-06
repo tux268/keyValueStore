@@ -12,21 +12,75 @@ int parseCommand( const char *command, Command *result ) {
 	//your code here
 	//return -1
 	//return 0;
+	result->instruction = 0;
+	result->key = "";
+	result->value = "";
+	result->error = NULL;
 	char *p = command;
 	p = parseInst(p, result);
-	if (!p) return -1;
-	p = parseKey(p, result);
-	if (!p) return 0;
-	p = parseValue(p, result);
+	if (!p){
+		result->error = "Unknown instruction!";
+		return -1;
+	}
+	switch (result->instruction){
+		case 1:
+			p = parseKey(p, result);
+			if (!p){
+				result->error = "GET : missing key";
+				return -1;
+			}
+			if(parseValue(p,result)){
+				result->error = "GET : too many arguments";
+				return -1;
+			}
+			break;
+		case 2:
+			p = parseKey(p, result);
+			if (!p){
+				result->error = "SET : missing key";
+				return -1;
+			}
+			p = parseValue(p, result);
+			if (!p){
+				result->error = "SET : missing value";
+				return -1;
+			}
+			break;
+		case 3:
+			p = parseKey(p, result);
+			if (!p){
+				result->error = "DEL : missing key";
+				return -1;
+			}
+			if(parseValue(p,result)){
+				result->error = "DEL : too many arguments";
+				return -1;
+			}
+			break;
+		case 4:
+		if(parseValue(p,result)){
+			result->error = "BYE : too many arguments";
+			return -1;
+		}
+			break;
+		default:
+			result->error = "Unknown error";
+			return -1;
+			break;
+	}
 	return 0;
 }
 
 static char *parseInst(const char *command, Command *result){
 	char *p = command;
 	p = removeBeginingSpaces(p);
-	char *inst = malloc(4);
-	strncpy(inst, p, 3);
-	p +=3;
+	int len = 0;
+	while (*(p+len) != ' ' && *(p+len) != '\0') {
+		len++;
+	}
+	char *inst = malloc(len+1);
+	strncpy(inst, p, len);
+	p +=len;
 	if (!strcmp(inst, "GET")){
 		result->instruction = GET;
 	}
