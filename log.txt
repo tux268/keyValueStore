@@ -1,0 +1,5 @@
+set key1 deeffdgdgr
+set key1 fdsgsdfg
+set key2 dsfs
+set key3 rdsgoij
+del key2

@@ -46,7 +46,6 @@ static void updateStore(Store *store){
 
 	while (fgets(line, MAX_KEY_LEN + MAX_VALUE_LEN + 7, store->journalptr)) {
 		line[strlen(line)-1] = '\0';
-		printf("%s\n", line);
 		runCommand(store, line);
 	}
 	free(line);
