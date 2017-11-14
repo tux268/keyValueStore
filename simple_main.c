@@ -18,14 +18,14 @@ int main()
 	char value3[] = "value3";
 	char value4[] = "value4";
 
-	Store* store = openStore();
-
+	Store* store = openStore("log.txt");
+/*
 	setValue(store, key1, value1);
 	setValue(store, key2, value2);
 	setValue(store, key3, value3);
 	setValue(store, key4, value4);
 	setValue(store, key4, value3);
-
+*/
 	char *answer;
 	do {
 		char *command = malloc(MAX_KEY_LEN + MAX_VALUE_LEN + 7);

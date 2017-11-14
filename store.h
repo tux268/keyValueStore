@@ -8,7 +8,7 @@ struct Store_t;
 
 typedef struct Store_t Store;
 
-Store* openStore();
+Store* openStore(const char* journal);
 
 void closeStore( Store *store );
 

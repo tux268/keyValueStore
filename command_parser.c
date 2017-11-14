@@ -7,6 +7,7 @@ static char *parseInst(const char *command, Command *result);
 static char *parseKey(const char *command, Command *result);
 static char *parseValue(const char *command, Command *result);
 static char *removeBeginingSpaces(char *p);
+static void lower(const char *str);
 
 int parseCommand( const char *command, Command *result ) {
 	//your code here
@@ -80,17 +81,18 @@ static char *parseInst(const char *command, Command *result){
 	}
 	char *inst = malloc(len+1);
 	strncpy(inst, p, len);
+	lower(inst);
 	p +=len;
-	if (!strcmp(inst, "GET")){
+	if (!strcmp(inst, "get")){
 		result->instruction = GET;
 	}
-	else if (!strcmp(inst, "SET")) {
+	else if (!strcmp(inst, "set")) {
 		result->instruction = SET;
 	}
-	else if (!strcmp(inst, "DEL")) {
+	else if (!strcmp(inst, "del")) {
 		result->instruction = DEL;
 	}
-	else if (!strcmp(inst, "BYE")) {
+	else if (!strcmp(inst, "bye")) {
 		result->instruction = BYE;
 	}
 	else {
@@ -140,4 +142,8 @@ static char *removeBeginingSpaces(char *p){
 		++p;
 	}
 	return p;
+}
+
+static void lower(const char *str){
+	for (char *p = str; *p; ++p) *p = tolower(*p);
 }

@@ -33,22 +33,44 @@ static void deleteRecord( Record *record ) {
 	record = NULL;
 }
 
+
 //gift from assistant
 struct Store_t {
   Record *hashmap;
+	FILE* journalptr;
+	int updateJournal;
 };
 
+static void updateStore(Store *store){
+	char* line = malloc(MAX_KEY_LEN + MAX_VALUE_LEN + 7);
 
-Store* openStore() {
+	while (fgets(line, MAX_KEY_LEN + MAX_VALUE_LEN + 7, store->journalptr)) {
+		line[strlen(line)-1] = '\0';
+		printf("%s\n", line);
+		runCommand(store, line);
+	}
+	free(line);
+}
+
+
+Store* openStore(const char* journal) {
 //your code here
 	Store* s;
 	s = malloc(sizeof(Store));
 	s->hashmap = NULL;
+	s->journalptr = fopen(journal, "a+");
+	s->updateJournal = 0;
+	if (s->journalptr == NULL){
+		perror("unable to open storeLog");
+	}
+	updateStore(s);
+	s->updateJournal = 1;
 	return s;
 }
 
 void closeStore( Store *store ) {
 	//your code here
+	fclose(store->journalptr);
 	Record *cur, *tmp;
 	HASH_ITER(hh, store->hashmap, cur, tmp){
 		HASH_DEL(store->hashmap, cur);
@@ -58,12 +80,24 @@ void closeStore( Store *store ) {
 
 
 void setValue( Store *store, char* key, char* value ) {
+	char* logstr = malloc(strlen(key)+strlen(value)+7);
+	strcpy(logstr, "set ");
+	strcat(logstr, key);
+	strcat(logstr, " ");
+	strcat(logstr, value);
+	strcat(logstr, "\n");
+	if (store->updateJournal) fputs(logstr, store->journalptr);
 	Record* new = newRecord(key, value);
 	HASH_ADD_KEYPTR(hh, store->hashmap, new->key, strlen(new->key), new);
 }
 
 void removeValue( Store *store, char *key ) {
 	//your code here
+	char* logstr = malloc(strlen(key)+6);
+	strcpy(logstr, "del ");
+	strcat(logstr, key);
+	strcat(logstr, "\n");
+	if (store->updateJournal) fputs(logstr, store->journalptr);
 	Record *rec = NULL;
 
 	HASH_FIND_STR(store->hashmap, key, rec);
@@ -100,8 +134,8 @@ char *runCommand( Store *store, char* command ) {
 		case 1:
 			value = getValue(store, toRun->key);
 			if (!value){
-				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+1);
-				strcpy(ret, "ERR ");
+				ret = malloc(strlen("UND ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				strcpy(ret, "UND ");
 				strcat(ret, toRun->key);
 				strcat(ret, " not found in store!");
 			}
