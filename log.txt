@@ -1,5 +1,6 @@
-set key1 deeffdgdgr
-set key1 fdsgsdfg
-set key2 dsfs
-set key3 rdsgoij
-del key2
+set k1 value1
+set k2 value2
+del k1
+set finland helsinki
+set k3 def
+set k4 fecjnhsaiuhcsivchisndcnkncdjsnacdihcisahcdis

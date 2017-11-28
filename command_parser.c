@@ -83,6 +83,14 @@ static char *parseInst(const char *command, Command *result){
 	strncpy(inst, p, len);
 	lower(inst);
 	p +=len;
+	//if (strlen(inst)>3)  return NULL;
+
+	//strncpy(inst, inst, 3);
+	/*printf("\n******\n");
+	for (size_t i = 0; i < strlen(inst); i++) {
+		printf("%x, ", inst[i]);
+	}*/
+
 	if (!strcmp(inst, "get")){
 		result->instruction = GET;
 	}
@@ -96,6 +104,7 @@ static char *parseInst(const char *command, Command *result){
 		result->instruction = BYE;
 	}
 	else {
+
 		return NULL;
 	}
 	return p;
