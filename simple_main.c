@@ -8,26 +8,7 @@
 
 
 int main( int argc, char **argv ) {
-  int servSock;
-  int port;
-
-  if (argc != 2) {
-    fprintf(stderr, "USAGE: %s <port> \n", argv[0]);
-    exit(EXIT_FAILURE);
-  }
-
-  port = atoi(argv[1]);
-
-
-  servSock = makeSocket(port);
-
-  printf( "Server running on port %d \n", port);
-
-  run(servSock);
-
-  close(servSock);
-
-  return EXIT_SUCCESS;
+  
 }
 
 /*
