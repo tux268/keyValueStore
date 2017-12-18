@@ -13,7 +13,7 @@ int parseCommand( const char *command, Command *result ) {
 	//your code here
 	//return -1
 	//return 0;
-	printf("CMD IN PARSE : --%s--", command);
+	//printf("CMD IN PARSE : --%s--", command);
 	result->instruction = 0;
 	result->key = "";
 	result->value = "";

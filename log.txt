@@ -1,0 +1,6 @@
+set k1 v1
+set k2 v2
+set k1 v3
+del k1
+set k2 v3
+del k2

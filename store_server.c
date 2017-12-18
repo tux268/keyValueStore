@@ -27,7 +27,7 @@
 /* The connection can be closed */
 #define DONE    8
 
-typedef struct 
+typedef struct
 {
   char buffer[BUF_LEN];
   int end;
@@ -35,17 +35,17 @@ typedef struct
   int status;
 } FDState;
 
-FDState *states[FD_SETSIZE]; 
-int listener; 
+FDState *states[FD_SETSIZE];
+int listener;
 Store *store;
 
-static void die(char *issue) 
+static void die(char *issue)
 {
   perror(issue);
   exit(EXIT_FAILURE);
 }
 
-void resetState( FDState *state ) 
+void resetState( FDState *state )
 {
 	memset(state->buffer, 0, BUF_LEN);
 	state->end = 0;
@@ -53,7 +53,7 @@ void resetState( FDState *state )
 	state->status = READING;
 }
 
-FDState *allocFDState() 
+FDState *allocFDState()
 {
 	FDState *s = malloc(sizeof(FDState));
 	if (!s)
@@ -66,17 +66,17 @@ FDState *allocFDState()
   	return s;
 }
 
-void freeFDState(FDState *state) 
+void freeFDState(FDState *state)
 {
 	free(state);
 }
 
-void setNonBlocking(int fd) 
+void setNonBlocking(int fd)
 {
   int flags = fcntl (fd, F_GETFL);
 
   // If reading the flags fails return error (EAGAIN == EWOULDBLOCK)
-  if (flags == EAGAIN) 
+  if (flags == EAGAIN)
   {
     return -1;
   }
@@ -84,11 +84,11 @@ void setNonBlocking(int fd)
   flags |= O_NONBLOCK;
 
   // Write the new flag (EAGAIN == EWOULDBLOCK)
-  if (fcntl (fd, F_SETFL, flags) == EAGAIN) 
+  if (fcntl (fd, F_SETFL, flags) == EAGAIN)
   {
     return -1;
   }
- 
+
 }
 
 int receivecmd(int fd, FDState *state)
@@ -96,7 +96,7 @@ int receivecmd(int fd, FDState *state)
 	int nRead;
 	nRead = read(fd, state->buffer, BUF_LEN);
 
-	if(nRead <= 0) 
+	if(nRead <= 0)
 	{
 		if(errno == EAGAIN)
 		{
@@ -141,9 +141,13 @@ int sendResult( int fd, FDState *state, Store *store )
 			return -1;
 		}
 	}
-	else 
-	{
-		state->status = DONE;
+	else{
+		if (strcmp(res, "BYE\n") == 0){
+			state->status = DONE;
+		}
+		else{
+			resetState(state);
+		}
 	}
 }
 
@@ -175,7 +179,7 @@ void run( int port )
 
 	// Handles already bind address case
 	int y = 1;
-    if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y)) == -1) 
+    if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y)) == -1)
     {
         die("[-] setsockopt error ! ...");
 	}
@@ -193,7 +197,7 @@ void run( int port )
 	}
 
 	printf("[+] Listening for connections on port %d ...\n", port);
-	
+
 	while (1) {
 		maxfd = listener;
 		FD_ZERO(&readset);
@@ -201,26 +205,26 @@ void run( int port )
 		FD_SET(listener, &readset);
 
 		// FD_SETS iteration
-		for (i=0; i < FD_SETSIZE; ++i) 
+		for (i=0; i < FD_SETSIZE; ++i)
 		{
-			if (states[i]) 
+			if (states[i])
 			{
-				if (i > maxfd) 
-				{	
+				if (i > maxfd)
+				{
 					maxfd = i;
 					FD_SET(i, &readset);
 					if (FD_ISSET(i, &readset)) {
 						printf("file descriptor %d saved in readset\n", i);
 					}
-					if( states[i]->status == WRITING) 
-					{	
+					if( states[i]->status == WRITING)
+					{
 						printf("file descriptor %d saved in writeset\n", i);
 						FD_SET(i, &writeset);
 					}
 				}
       		}
     	}
-		
+
 		if(select(maxfd+1, &readset, &writeset, NULL, NULL)<0) {
 			die("[-] Select error ! ...]");
 		}
@@ -256,18 +260,18 @@ void run( int port )
 		{
 			int r = 0;
       		if (i == listener) continue;
-      		if (FD_ISSET(i, &readset))   
+      		if (FD_ISSET(i, &readset))
 			{
 				r = receivecmd(i, states[i]);
 				printf("[+] Received CMD : %s from %d !\n", states[i]->buffer, i);
       		}
 
-			if (r == 0 && FD_ISSET(i, &writeset)) 
+			if (r == 0 && FD_ISSET(i, &writeset))
 			{
 				printf( "[+] Writing to %d ... \n" , i);
 				r = sendResult(i, states[i], store);
 
-				if ( states[i]->status == DONE ) 
+				if ( states[i]->status == DONE )
 				{
 					printf( "[+] Closing socket: %d\n", i);
 					freeFDState(states[i]);
