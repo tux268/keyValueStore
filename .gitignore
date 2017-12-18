@@ -1,6 +1,6 @@
 simple_main
 store_server
-log.txt
+*.txt
 # Prerequisites
 *.d
 
