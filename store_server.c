@@ -254,8 +254,7 @@ void run(int port) {
 void shutdownServer(int signum) {
   // signal callback
   // do your clean-up here.
-  printf("\nServer shutting down\n");
-  // closeStore(store);
+  printf("\nServer shutting down !\n");
   int y = 1;
   if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y)) == -1) {
     die("[-] setsockopt error ! ...");
@@ -265,6 +264,7 @@ void shutdownServer(int signum) {
     states[i] = NULL;
     close(i);
   }
+	close(store);
   exit(EXIT_SUCCESS);
 }
 
