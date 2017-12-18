@@ -59,7 +59,7 @@ FDState *allocFDState() {
 	if (!state){
 		return NULL;
 	}
-	// CHECK this shit !!!!!																	--------- /!\ ------
+
 	resetState(state);
   return state;
 }
@@ -101,6 +101,7 @@ int receiveCommand(int fd, FDState *state)
 			return 0;
 		}
 		else{
+			perror("Read error");
 			return -1;
 		}
 	}
@@ -142,12 +143,98 @@ void run( int port )
 	//here is where the magic happens.
 	//handle ALL ERRORS
 	int listener;
+	int i, maxfd;
 	struct sockaddr_in sin;
+	fd_set readset, writeset;
+
 	sin.sin_family = AF_INET;
 	sin.sin_addr = INADDR_ANY;
 	sin.sin_port = port;
 
+	// init all states to null
+	for (i = 0; i < FD_SETSIZE; i++){
+		state[i] = NULL;
+	}
 
+	// make listener socket, set it non blocking and bind it
+	listener = socket(AF_INET, SOCK_STREAM, 0);
+	setNonBlocking(listener);
+	if (bind(listener, (struct sockaddr*) &sin, sizeof(sin))<){
+		die("Bind error");
+	}
+	// begin to listen for incomming sockets, set limit to 16
+	if (listen(listener, 16)<0){
+		die("Listen error");
+	}
+
+	printf("Listening for connections\n");
+
+	while (1) {
+		maxfd = listener;
+		FD_ZERO(&readset);
+		FD_ZERO(&writeset);
+
+		FD_SET(listener, &readset);
+
+		// update FD sets
+		for (i=0; i < FD_SETSIZE; ++i) {
+      if (state[i]) {
+        if (i > maxfd)
+	   			maxfd = i;
+	 			FD_SET(i, &readset);
+	 			if( state[i]->status == WRITING) {
+	   			FD_SET(i, &writeset);
+	 			}
+      }
+    }
+
+		// performing the select operation
+		if(select(maxfd+1, &readset, &writeset, NULL, NULL)<0) {
+			die("Select error");
+		}
+
+		// Accept new connections
+		if (FD_ISSET(listener, &readset)){
+			int fd;
+      struct sockaddr_storage ss;
+      socklen_t slen = sizeof(ss);
+			fd = accept(listener, (struct sockaddr*)&ss, &slen);
+
+			if (fd < 0){
+				die("Accept error");
+			}
+			else if (fd > FD_SETSIZE){
+				close(fd);
+			}
+			else{
+				printf("Accepted connection %d\n", fd);
+				setNonBlocking(fd);
+				state[fd] = allocFDState;
+			}
+		}
+
+		// do things ...
+		for(i=0; i<maxfd; i++){
+			int r = 0;
+      if (i == listener) continue;
+      if (FD_ISSET(i, &readset)) {
+				printf( "Reading from %d\n" , i );
+				r = receiveCommand(i, state[i]);
+      }
+
+			if (r == 0 && FD_ISSET(i, &writeset)) {
+				printf( "Writing to %d\n" , i );
+				r = sendResult(i, state[i]);
+
+				if ( state[i]->status == DONE ) {
+		  		printf( "Closing socket: %d\n", i );
+		  		freeFDState(state[i]);
+		  		state[i] = NULL;
+		  		close(i);
+				}
+      }
+		}
+	}
 }
 
 void shutdownServer( int signum )
