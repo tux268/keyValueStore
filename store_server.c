@@ -102,9 +102,14 @@ int receivecmd(int fd, FDState *state)
 		{
 			return 0;
 		}
+		else if (nRead = 0){
+			state->status = DONE;
+			return 0;
+		}
 		else
 		{
 			perror("[-] Failed to read cmd !");
+			state->status = DONE;
 			return -1;
 		}
 	}
@@ -278,7 +283,13 @@ void run( int port )
 					states[i] = NULL;
 					close(i);
 				}
-      		}
+      }
+			if (r<0){
+				printf( "[-] Connection closed by peer: %d\n", i);
+				freeFDState(states[i]);
+				states[i] = NULL;
+				close(i);
+			}
 		}
 	}
 }
@@ -310,6 +321,7 @@ int main(int argc, char **argv)
   }
 
 	signal(SIGINT, shutdownServer);
+	signal(SIGPIPE, SIG_IGN);
 	run(port);
   //1) presare sigaction and callback
   //2) open the store
