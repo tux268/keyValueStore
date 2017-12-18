@@ -284,11 +284,20 @@ void run( int port )
 }
 
 // -------- TO DO ! -------
-void shutdownServer( int signum )
-{
+void shutdownServer( int signum ){
 	//signal callback
 	//do your clean-up here.
-
+	printf("\nServer shutting down\n");
+	int y = 1;
+	if (setsockopt(listener, SOL_SOCKET, SO_REUSEADDR, &y, sizeof(y)) == -1){
+			die("[-] setsockopt error ! ...");
+	}
+	for(int i=0; i < FD_SETSIZE; i++){
+		freeFDState(states[i]);
+		states[i] = NULL;
+		close(i);
+	}
+	closeStore(store);
 	exit(EXIT_SUCCESS);
 }
 
@@ -300,6 +309,7 @@ int main(int argc, char **argv)
 	  port = atoi( argv[1] );
   }
 
+	signal(SIGINT, shutdownServer);
 	run(port);
   //1) presare sigaction and callback
   //2) open the store

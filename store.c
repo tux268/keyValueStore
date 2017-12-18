@@ -68,6 +68,7 @@ Store* openStore(const char* journal) {
 
 void closeStore( Store *store ) {
 	//your code here
+	//printf("----------\n");
 	fclose(store->journalptr);
 	Record *cur, *tmp;
 	HASH_ITER(hh, store->hashmap, cur, tmp){
