@@ -19,7 +19,6 @@ typedef struct Record_t Record;
 
 static Record *newRecord( const char* key, const char* value) {
 //your code here
-
 	Record* rec;
 	rec = malloc(sizeof(Record));
 	rec->key = key;
@@ -85,7 +84,15 @@ void setValue( Store *store, char* key, char* value ) {
 	strcat(logstr, " ");
 	strcat(logstr, value);
 	strcat(logstr, "\n");
-	if (store->updateJournal) fputs(logstr, store->journalptr);
+	if (store->updateJournal) {
+		fputs(logstr, store->journalptr);
+		fflush(store->journalptr);
+	}
+	Record *rec = NULL;
+
+	HASH_FIND_STR(store->hashmap, key, rec);
+	if (rec) HASH_DEL(store->hashmap, rec);
+	deleteRecord(rec);
 	Record* new = newRecord(key, value);
 	HASH_ADD_KEYPTR(hh, store->hashmap, new->key, strlen(new->key), new);
 }
@@ -96,7 +103,10 @@ void removeValue( Store *store, char *key ) {
 	strcpy(logstr, "del ");
 	strcat(logstr, key);
 	strcat(logstr, "\n");
-	if (store->updateJournal) fputs(logstr, store->journalptr);
+	if (store->updateJournal) {
+		fputs(logstr, store->journalptr);
+		fflush(store->journalptr);
+	}
 	Record *rec = NULL;
 
 	HASH_FIND_STR(store->hashmap, key, rec);
@@ -133,39 +143,40 @@ char *runCommand( Store *store, char* command ) {
 		case 1:
 			value = getValue(store, toRun->key);
 			if (!value){
-				ret = malloc(strlen("UND ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				ret = malloc(strlen("UND ")+strlen(toRun->key)+strlen(" not found in store!")+2);
 				strcpy(ret, "UND ");
 				strcat(ret, toRun->key);
-				strcat(ret, " not found in store!");
+				strcat(ret, " not found in store!\n");
 			}
 			else{
-				ret = malloc(strlen(value)+5);
+				ret = malloc(strlen(value)+6);
 				strcpy(ret, "VAL ");
 				strcat(ret, value);
+				strcat(ret, "\n");
 			}
 			return ret;
 			break;
 		case 2:
 			setValue(store, toRun->key, toRun->value);
-			return "DON";
+			return "DON\n";
 			break;
 		case 3:
 		  value = getValue(store, toRun->key);
 			if (!value){
-				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+2);
 				strcpy(ret, "ERR ");
 				strcat(ret, toRun->key);
-				strcat(ret, " not found in store!");
+				strcat(ret, " not found in store!\n");
 				return ret;
 			}
 			removeValue(store, toRun->key);
-			return "DON";
+			return "DON\n";
 			break;
 		case 4:
-			return "BYE";
+			return "BYE\n";
 			break;
 		default:
-			return "ERR Invalide commande !";
+			return "ERR Invalide commande !\n";
 			break;
 	}
   return NULL;
