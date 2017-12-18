@@ -13,6 +13,7 @@ int parseCommand( const char *command, Command *result ) {
 	//your code here
 	//return -1
 	//return 0;
+	printf("CMD IN PARSE : --%s--", command);
 	result->instruction = 0;
 	result->key = "";
 	result->value = "";
@@ -75,21 +76,16 @@ int parseCommand( const char *command, Command *result ) {
 static char *parseInst(const char *command, Command *result){
 	char *p = command;
 	p = removeBeginingSpaces(p);
+
 	int len = 0;
 	while (*(p+len) != ' ' && *(p+len) != '\0') {
 		len++;
 	}
 	char *inst = malloc(len+1);
+	memset(inst, '\0', len+1);
 	strncpy(inst, p, len);
 	lower(inst);
 	p +=len;
-	//if (strlen(inst)>3)  return NULL;
-
-	//strncpy(inst, inst, 3);
-	/*printf("\n******\n");
-	for (size_t i = 0; i < strlen(inst); i++) {
-		printf("%x, ", inst[i]);
-	}*/
 
 	if (!strcmp(inst, "get")){
 		result->instruction = GET;
@@ -126,6 +122,7 @@ static char *parseKey(const char *command, Command *result){
 		return NULL;
 	}
 	result->key = malloc(len+1);
+	memset(result->key, '\0', len+1);
 	strncpy(result->key, p, len);
 	p += len;
 	return p;
@@ -142,6 +139,7 @@ static char *parseValue(const char *command, Command *result){
 		return NULL;
 	}
 	result->value = malloc(strlen(p)+1);
+	memset(result->value, '\0', strlen(p)+1);
 	strncpy(result->value, p, strlen(p));
 	return p + strlen(p);
 }
