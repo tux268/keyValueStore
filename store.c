@@ -123,9 +123,10 @@ char *runCommand( Store *store, char* command ) {
 	Command* toRun = malloc(sizeof(Command));
 	char *ret, *value;
 	if (parseCommand(command, toRun) == -1){
-		ret = malloc(strlen("ERR invalide command\n") + strlen(toRun->error)+1);
+		ret = malloc(strlen("ERR invalide command\n") + strlen(toRun->error)+2);
 		strcpy(ret, "ERR invalide command\n");
 		strcat(ret, toRun->error);
+		strcat(ret, "\n");
 		return ret;
 	}
 
@@ -133,39 +134,42 @@ char *runCommand( Store *store, char* command ) {
 		case 1:
 			value = getValue(store, toRun->key);
 			if (!value){
-				ret = malloc(strlen("UND ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				ret = malloc(strlen("UND ")+strlen(toRun->key)+strlen(" not found in store!")+2);
 				strcpy(ret, "UND ");
 				strcat(ret, toRun->key);
 				strcat(ret, " not found in store!");
+				strcat(ret, "\n");
 			}
 			else{
-				ret = malloc(strlen(value)+5);
+				ret = malloc(strlen(value)+6);
 				strcpy(ret, "VAL ");
 				strcat(ret, value);
+				strcat(ret, "\n");
 			}
 			return ret;
 			break;
 		case 2:
 			setValue(store, toRun->key, toRun->value);
-			return "DON";
+			return "DON\n";
 			break;
 		case 3:
 		  value = getValue(store, toRun->key);
 			if (!value){
-				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+1);
+				ret = malloc(strlen("ERR ")+strlen(toRun->key)+strlen(" not found in store!")+2);
 				strcpy(ret, "ERR ");
 				strcat(ret, toRun->key);
 				strcat(ret, " not found in store!");
+				strcat(ret, "\n");
 				return ret;
 			}
 			removeValue(store, toRun->key);
-			return "DON";
+			return "DON\n";
 			break;
 		case 4:
-			return "BYE";
+			return "BYE\n";
 			break;
 		default:
-			return "ERR Invalide commande !";
+			return "ERR Invalide commande !\n";
 			break;
 	}
   return NULL;

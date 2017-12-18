@@ -127,7 +127,6 @@ int sendResult( int fd, FDState *state, Store *store )
 
 	char* res = runCommand(store, cmd);
 
-	//state->status = RESULT;
 	nWrite = write(fd, res, strlen(res));
 	if (nWrite != strlen(res))
 	{
@@ -137,13 +136,12 @@ int sendResult( int fd, FDState *state, Store *store )
 		}
 		else
 		{
-			//state->status = ERROR;
 			return -1;
 		}
 	}
 	else 
 	{
-		state->status = DONE;
+		resetState(state);
 	}
 }
 
