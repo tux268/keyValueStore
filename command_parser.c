@@ -85,10 +85,11 @@ static char *parseInst(const char *command, Command *result){
 	}
 	printf("len : %d\n", len);
 	char *inst = malloc(len+1);
+	memset(inst, '\0', len+1);
 	strncpy(inst, p, len);
-	inst[3] = '\0';
+	//inst[3] = '\0';
 	lower(inst);
-	printf("INST : --%s--", inst);
+	printf("INST : <%s>", inst);
 	p +=len;
 	//if (strlen(inst)>3)  return NULL;
 
@@ -133,6 +134,7 @@ static char *parseKey(const char *command, Command *result){
 		return NULL;
 	}
 	result->key = malloc(len+1);
+	memset(result->key, '\0', len+1);
 	strncpy(result->key, p, len);
 	p += len;
 	return p;
@@ -149,6 +151,7 @@ static char *parseValue(const char *command, Command *result){
 		return NULL;
 	}
 	result->value = malloc(strlen(p)+1);
+	memset(result->value, '\0', strlen(p)+1);
 	strncpy(result->value, p, strlen(p));
 	return p + strlen(p);
 }
