@@ -108,7 +108,7 @@ int receivecmd(int fd, FDState *state)
 		}
 		else
 		{
-			perror("[-] Failed to read cmd !");
+			//printf("[-] Failed to read cmd !");
 			state->status = DONE;
 			return -1;
 		}
@@ -219,11 +219,11 @@ void run( int port )
 					maxfd = i;
 					FD_SET(i, &readset);
 					if (FD_ISSET(i, &readset)) {
-						printf("file descriptor %d saved in readset\n", i);
+						//printf("file descriptor %d saved in readset\n", i);
 					}
 					if( states[i]->status == WRITING)
 					{
-						printf("file descriptor %d saved in writeset\n", i);
+						//printf("file descriptor %d saved in writeset\n", i);
 						FD_SET(i, &writeset);
 					}
 				}
@@ -264,12 +264,14 @@ void run( int port )
 		for(i=0; i <= maxfd; i++)
 		{
 			int r = 0;
-      		if (i == listener) continue;
-      		if (FD_ISSET(i, &readset))
+      if (i == listener) continue;
+      if (FD_ISSET(i, &readset))
 			{
 				r = receivecmd(i, states[i]);
-				printf("[+] Received CMD : %s from %d !\n", states[i]->buffer, i);
-      		}
+				if(r == 0){
+					printf("[+] Received CMD from %d : %s", i, states[i]->buffer);
+				}
+      }
 
 			if (r == 0 && FD_ISSET(i, &writeset))
 			{
