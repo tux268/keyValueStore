@@ -79,11 +79,11 @@ int listener; //the main listener file descriptor for the server socket - non bl
 Store *store;
 
 void setNonBlocking(int fd){
-  //wrap around fnctl here
+  //wrap around fcntl here
   //1) get the file descriptor flags
   //2) update the file descriptor to support non-blocking access - refer to manual for return values (EAGAIN EWOULDBLOCK)
-	int flags = fnctl(fd, F_GETFl, 0);
-	fnctl(fd, F_SETFL, O_NONBLOCK);
+	int flags = fcntl(fd, F_GETFL, 0);
+	fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
 int receiveCommand(int fd, FDState *state)
@@ -146,20 +146,21 @@ void run( int port )
 	int i, maxfd;
 	struct sockaddr_in sin;
 	fd_set readset, writeset;
+	Store* store = openStore("log.txt");
 
 	sin.sin_family = AF_INET;
-	sin.sin_addr = INADDR_ANY;
-	sin.sin_port = port;
+	sin.sin_addr.s_addr = INADDR_ANY;
+	sin.sin_port = htons(port);
 
 	// init all states to null
 	for (i = 0; i < FD_SETSIZE; i++){
-		state[i] = NULL;
+		states[i] = NULL;
 	}
 
 	// make listener socket, set it non blocking and bind it
 	listener = socket(AF_INET, SOCK_STREAM, 0);
 	setNonBlocking(listener);
-	if (bind(listener, (struct sockaddr*) &sin, sizeof(sin))<){
+	if (bind(listener, (struct sockaddr*) &sin, sizeof(sin))<0){
 		die("Bind error");
 	}
 	// begin to listen for incomming sockets, set limit to 16
@@ -178,11 +179,11 @@ void run( int port )
 
 		// update FD sets
 		for (i=0; i < FD_SETSIZE; ++i) {
-      if (state[i]) {
+      if (states[i]) {
         if (i > maxfd)
 	   			maxfd = i;
 	 			FD_SET(i, &readset);
-	 			if( state[i]->status == WRITING) {
+	 			if( states[i]->status == WRITING) {
 	   			FD_SET(i, &writeset);
 	 			}
       }
@@ -209,7 +210,7 @@ void run( int port )
 			else{
 				printf("Accepted connection %d\n", fd);
 				setNonBlocking(fd);
-				state[fd] = allocFDState;
+				states[fd] = allocFDState;
 			}
 		}
 
@@ -219,17 +220,17 @@ void run( int port )
       if (i == listener) continue;
       if (FD_ISSET(i, &readset)) {
 				printf( "Reading from %d\n" , i );
-				r = receiveCommand(i, state[i]);
+				r = receiveCommand(i, states[i]);
       }
 
 			if (r == 0 && FD_ISSET(i, &writeset)) {
 				printf( "Writing to %d\n" , i );
-				r = sendResult(i, state[i]);
+				r = sendResult(i, states[i], store);
 
-				if ( state[i]->status == DONE ) {
+				if ( states[i]->status == DONE ) {
 		  		printf( "Closing socket: %d\n", i );
-		  		freeFDState(state[i]);
-		  		state[i] = NULL;
+		  		freeFDState(states[i]);
+		  		states[i] = NULL;
 		  		close(i);
 				}
       }
@@ -237,10 +238,12 @@ void run( int port )
 	}
 }
 
+//																	-------- TO DO ! -------
 void shutdownServer( int signum )
 {
 	//signal callback
 	//do your clean-up here.
+
 	exit(EXIT_SUCCESS);
 }
 
@@ -251,6 +254,8 @@ int main(int argc, char **argv)
   {
 	  port = atoi( argv[1] );
   }
+
+	run(port);
   //1) prepare sigaction and callback
   //2) open the store
   //3) run the server
