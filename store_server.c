@@ -123,7 +123,7 @@ int sendResult( int fd, FDState *state, Store *store )
 	char * command = malloc (state->end + 1);
 	strcpy(command, state->buffer);
 	command[strlen(command)-1] = '\0';
-
+	
 	printf("Command to send : --%s--", command);
 
 	char * rep = runCommand(store, command);

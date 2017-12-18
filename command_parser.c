@@ -13,6 +13,7 @@ int parseCommand( const char *command, Command *result ) {
 	//your code here
 	//return -1
 	//return 0;
+	printf("CMD IN PARSE : --%s--", command);
 	result->instruction = 0;
 	result->key = "";
 	result->value = "";
@@ -74,14 +75,20 @@ int parseCommand( const char *command, Command *result ) {
 
 static char *parseInst(const char *command, Command *result){
 	char *p = command;
+	printf("Cmd in patseInst --%s--", command);
 	p = removeBeginingSpaces(p);
+	printf("Cmd in parseInst p --%s--", p);
+
 	int len = 0;
 	while (*(p+len) != ' ' && *(p+len) != '\0') {
 		len++;
 	}
+	printf("len : %d\n", len);
 	char *inst = malloc(len+1);
 	strncpy(inst, p, len);
+	inst[3] = '\0';
 	lower(inst);
+	printf("INST : --%s--", inst);
 	p +=len;
 	//if (strlen(inst)>3)  return NULL;
 
